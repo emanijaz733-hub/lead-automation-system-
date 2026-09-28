@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lead Command Center — Honda</title>
+<style>
+  :root {
+    --black: #0a0a0a;
+    --charcoal: #1c1c1c;
+    --red: #c8102e;
+    --red-dark: #9c0c23;
+    --white: #ffffff;
+    --paper: #f3f2ee;
+    --ink: #141414;
+    --ink-soft: #6b6a66;
+    --line: #e2e0d9;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+  }
+
+  /* ---------- Top bar ---------- */
+  .topbar {
+    background: var(--black);
+    color: var(--white);
+    padding: 16px 28px;
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    flex-wrap: wrap;
+    border-bottom: 3px solid var(--red);
+  }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand .mark {
+    font-size: 12px; font-weight: 700; letter-spacing: 0.08em;
+    color: var(--red); border: 1px solid var(--red); border-radius: 3px;
+    padding: 3px 7px;
+  }
+  .brand h1 { font-size: 16px; font-weight: 600; margin: 0; letter-spacing: -0.01em; }
+  .stats { display: flex; gap: 22px; margin-left: 8px; }
+  .stat { text-align: left; }
+  .stat .num { font-size: 19px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+  .stat.hot .num { color: var(--red); }
+  .stat .lbl { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: #9a9a9a; margin-top: 3px; }
+  .topbar-actions { display: flex; gap: 10px; margin-left: auto; }
+  button {
+    font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
+    border-radius: 5px; padding: 9px 14px; border: 1px solid transparent;
+  }
+  .btn-primary { background: var(--red); color: var(--white); }
+  .btn-primary:hover { background: var(--red-dark); }
+  .btn-ghost { background: transparent; color: var(--white); border-color: #3a3a3a; }
+  .btn-ghost:hover { border-color: var(--white); }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* ---------- Board ---------- */
+  .board {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    padding: 22px;
+    align-items: start;
+  }
+  @media (max-width: 980px) { .board { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 560px) { .board { grid-template-columns: 1fr; } }
+
+  .col-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    padding-bottom: 8px; margin-bottom: 12px; border-bottom: 2px solid var(--ink);
+  }
+  .col-head h2 { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin: 0; }
+  .col-head .count {
+    font-size: 11px; font-weight: 700; background: var(--ink); color: var(--white);
+    border-radius: 10px; padding: 1px 8px;
+  }
+  .col-body { display: flex; flex-direction: column; gap: 10px; min-height: 40px; }
+  .empty { color: var(--ink-soft); font-size: 13px; padding: 14px 4px; }
+
+  /* ---------- Cards ---------- */
+  .card {
+    background: var(--white); border: 1px solid var(--line); border-radius: 8px;
+    padding: 13px 14px; cursor: pointer; transition: border-color 0.12s;
+  }
+  .card:hover { border-color: var(--ink); }
+  .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+  .card-name { font-size: 14px; font-weight: 600; }
+  .badge {
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em;
+    border-radius: 4px; padding: 2px 6px; white-space: nowrap;
+  }
+  .badge.hot { background: var(--red); color: var(--white); }
+  .badge.warm { background: var(--ink); color: var(--white); }
+  .badge.cold { background: var(--paper); color: var(--ink-soft); border: 1px solid var(--line); }
+  .badge.needsinfo { background: var(--white); color: var(--ink); border: 1px dashed var(--ink-soft); }
+  .badge.spam { background: var(--ink); color: #8a8a8a; }
+  .card-vehicle { font-size: 12.5px; color: var(--ink-soft); margin-top: 6px; }
+  .card-bottom { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
+  .score-chip {
+    font-size: 11px; font-weight: 700; font-variant-numeric: tabular-nums;
+    border: 1px solid var(--ink); border-radius: 4px; padding: 1px 6px;
+  }
+  .card-meta { font-size: 10.5px; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.03em; }
+  .repeat-tag { font-size: 10px; color: var(--red); font-weight: 700; margin-top: 6px; }
+
+  /* ---------- Detail panel ---------- */
+  #overlay {
+    position: fixed; inset: 0; background: rgba(10,10,10,0.5);
+    display: none; z-index: 10;
+  }
+  #panel {
+    position: fixed; top: 0; right: 0; height: 100%; width: 420px; max-width: 92vw;
+    background: var(--white); box-shadow: -8px 0 24px rgba(0,0,0,0.18);
+    overflow-y: auto; padding: 24px;
+  }
+  .panel-close {
+    position: absolute; top: 18px; right: 18px; background: none; border: none;
+    font-size: 20px; color: var(--ink-soft); padding: 4px 8px;
+  }
+  .panel-head h2 { font-size: 19px; margin: 0 0 4px; padding-right: 30px; }
+  .panel-sub { font-size: 12.5px; color: var(--ink-soft); }
+  .panel-section { margin-top: 22px; }
+  .panel-section h3 {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em;
+    color: var(--ink-soft); margin: 0 0 10px; border-bottom: 1px solid var(--line); padding-bottom: 6px;
+  }
+  .kv { display: grid; grid-template-columns: 90px 1fr; gap: 6px 10px; font-size: 13px; }
+  .kv .k { color: var(--ink-soft); }
+  .msg-box {
+    background: var(--paper); border-radius: 6px; padding: 10px 12px;
+    font-size: 13px; white-space: pre-wrap; margin-top: 4px;
+  }
+  .followup-box {
+    background: var(--black); color: var(--white); border-radius: 8px;
+    padding: 14px; font-size: 13.5px; line-height: 1.5;
+  }
+  .step {
+    display: flex; gap: 10px; padding-bottom: 14px; position: relative;
+  }
+  .step:not(:last-child)::before {
+    content: ""; position: absolute; left: 4px; top: 14px; bottom: -4px; width: 1px; background: var(--line);
+  }
+  .step-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--ink); margin-top: 4px; flex-shrink: 0; }
+  .step-dot.decision { background: var(--red); }
+  .step-body .tool { font-size: 12px; font-weight: 700; font-family: ui-monospace, monospace; }
+  .step-body .note { font-size: 12.5px; color: var(--ink-soft); margin-top: 2px; }
+  .approve-btn { width: 100%; margin-top: 12px; }
+  .approved-tag {
+    display: inline-block; margin-top: 12px; font-size: 12px; font-weight: 700;
+    color: var(--red);
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="mark">HONDA</span>
+    <h1>Lead Command Center</h1>
+  </div>
+  <div class="stats" id="stats"></div>
+  <div class="topbar-actions">
+    <button class="btn-ghost" id="refreshBtn">Refresh</button>
+    <button class="btn-primary" id="seedBtn">Generate new batch</button>
+  </div>
+</header>
+
+<main class="board" id="board"></main>
+
+<div id="overlay">
+  <aside id="panel"></aside>
+</div>
+
+<script>
+const API_BASE = "http://localhost:8000";
+
+const COLUMNS = [
+  { key: "Needs Review", label: "Needs review" },
+  { key: "Ready to Contact", label: "Ready to contact" },
+  { key: "Contacted", label: "Contacted" },
+  { key: "Archived", label: "Archived" },
+];
+
+let leadsCache = [];
+
+function badgeClass(classification) {
+  const map = { Hot: "hot", Warm: "warm", Cold: "cold", "Needs Info": "needsinfo", Spam: "spam" };
+  return map[classification] || "cold";
+}
+
+function vehicleLine(lead) {
+  const parts = [];
+  if (lead.vehicle_interest) parts.push(lead.vehicle_interest);
+  if (lead.color) parts.push(lead.color);
+  const base = parts.length ? parts.join(" · ") : "No vehicle specified";
+  return lead.special_features ? `${base} — ${lead.special_features}` : base;
+}
+
+function isRepeatContact(lead) {
+  return !!(lead.message && lead.message.includes("[Earlier inquiry:"));
+}
+
+function renderStats(summary) {
+  const items = [
+    { lbl: "Total", num: summary.total },
+    { lbl: "Hot", num: summary.hot, cls: "hot" },
+    { lbl: "Warm", num: summary.warm },
+    { lbl: "Needs Info", num: summary.needs_info },
+    { lbl: "Pending review", num: summary.pending_review },
+  ];
+  document.getElementById("stats").innerHTML = items.map(i => `
+    <div class="stat ${i.cls || ''}">
+      <div class="num">${i.num}</div>
+      <div class="lbl">${i.lbl}</div>
+    </div>
+  `).join("");
+}
+
+function renderBoard(leads) {
+  const board = document.getElementById("board");
+  board.innerHTML = "";
+  COLUMNS.forEach(col => {
+    const items = leads.filter(l => (l.pipeline_stage || "Needs Review") === col.key);
+    const section = document.createElement("section");
+    section.innerHTML = `
+      <div class="col-head">
+        <h2>${col.label}</h2>
+        <span class="count">${items.length}</span>
+      </div>
+      <div class="col-body">
+        ${items.length === 0 ? '<div class="empty">No leads here yet</div>' : items.map(cardHtml).join("")}
+      </div>
+    `;
+    board.appendChild(section);
+  });
+  // wire up click handlers after render
+  board.querySelectorAll(".card").forEach(el => {
+    el.addEventListener("click", () => openPanel(parseInt(el.dataset.id)));
+  });
+}
+
+function cardHtml(lead) {
+  const scoreLabel = lead.score === null || lead.score === undefined ? "—" : lead.score;
+  return `
+    <article class="card" data-id="${lead.id}">
+      <div class="card-top">
+        <div class="card-name">${escapeHtml(lead.name)}</div>
+        <span class="badge ${badgeClass(lead.classification)}">${lead.classification || "Unscored"}</span>
+      </div>
+      <div class="card-vehicle">${escapeHtml(vehicleLine(lead))}</div>
+      <div class="card-bottom">
+        <span class="score-chip">${scoreLabel}</span>
+        <span class="card-meta">${escapeHtml(lead.source || "")}</span>
+      </div>
+      ${isRepeatContact(lead) ? '<div class="repeat-tag">Repeat contact</div>' : ""}
+    </article>
+  `;
+}
+
+function escapeHtml(str) {
+  const div = document.createElement("div");
+  div.textContent = str == null ? "" : String(str);
+  return div.innerHTML;
+}
+
+function openPanel(id) {
+  const lead = leadsCache.find(l => l.id === id);
+  if (!lead) return;
+
+  let steps = [];
+  try { steps = JSON.parse(lead.reasoning_log || "[]"); } catch (e) { steps = []; }
+
+  const stepsHtml = steps.map(s => `
+    <div class="step">
+      <div class="step-dot ${s.tool_called === '(decision)' ? 'decision' : ''}"></div>
+      <div class="step-body">
+        <div class="tool">${escapeHtml(s.tool_called)}</div>
+        <div class="note">${escapeHtml(s.agent_note)}</div>
+      </div>
+    </div>
+  `).join("") || '<div class="empty">No reasoning recorded</div>';
+
+  const needsApproval = !!lead.needs_human_review && !lead.approved && lead.followup_draft;
+  const followupHtml = lead.followup_draft ? `
+    <div class="panel-section">
+      <h3>Drafted follow-up</h3>
+      <div class="followup-box">${escapeHtml(lead.followup_draft)}</div>
+      ${needsApproval
+        ? `<button class="btn-primary approve-btn" id="approveBtn">Approve to send</button>`
+        : lead.approved ? `<div class="approved-tag">&#10003; Approved &amp; sent to n8n</div>` : ""}
+    </div>
+  ` : "";
+
+  document.getElementById("panel").innerHTML = `
+    <button class="panel-close" id="closeBtn">&times;</button>
+    <div class="panel-head">
+      <h2>${escapeHtml(lead.name)}</h2>
+      <div class="panel-sub">
+        <span class="badge ${badgeClass(lead.classification)}">${lead.classification || "Unscored"}</span>
+        &nbsp; Score: ${lead.score ?? "—"} &nbsp;·&nbsp; ${escapeHtml(lead.source || "")}
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <h3>Contact</h3>
+      <div class="kv">
+        <span class="k">Phone/email</span><span>${escapeHtml(lead.contact)}</span>
+        <span class="k">Vehicle</span><span>${escapeHtml(lead.vehicle_interest || "—")}</span>
+        <span class="k">Colour</span><span>${escapeHtml(lead.color || "—")}</span>
+        <span class="k">Features</span><span>${escapeHtml(lead.special_features || "—")}</span>
+        <span class="k">Budget</span><span>${escapeHtml(lead.budget_hint || "—")}</span>
+        <span class="k">Timeline</span><span>${escapeHtml(lead.timeline || "—")}</span>
+      </div>
+      ${lead.message ? `<div class="msg-box">${escapeHtml(lead.message)}</div>` : ""}
+    </div>
+
+    <div class="panel-section">
+      <h3>Agent reasoning</h3>
+      ${stepsHtml}
+    </div>
+
+    ${followupHtml}
+  `;
+
+  document.getElementById("closeBtn").addEventListener("click", closePanel);
+  if (needsApproval) {
+    document.getElementById("approveBtn").addEventListener("click", () => approveLead(id));
+  }
+  document.getElementById("overlay").style.display = "block";
+}
+
+function closePanel() {
+  document.getElementById("overlay").style.display = "none";
+}
+
+async function approveLead(id) {
+  const btn = document.getElementById("approveBtn");
+  btn.disabled = true;
+  btn.textContent = "Sending...";
+  try {
+    await fetch(`${API_BASE}/api/leads/${id}/approve`, { method: "POST" });
+    await loadData();
+    closePanel();
+  } catch (e) {
+    btn.disabled = false;
+    btn.textContent = "Approve to send";
+  }
+}
+
+async function loadData() {
+  const [leads, summary] = await Promise.all([
+    fetch(`${API_BASE}/api/leads`).then(r => r.json()),
+    fetch(`${API_BASE}/api/summary`).then(r => r.json()),
+  ]);
+  leadsCache = leads;
+  renderStats(summary);
+  renderBoard(leads);
+}
+
+document.getElementById("refreshBtn").addEventListener("click", loadData);
+document.getElementById("seedBtn").addEventListener("click", async () => {
+  const btn = document.getElementById("seedBtn");
+  btn.disabled = true;
+  btn.textContent = "Generating...";
+  await fetch(`${API_BASE}/api/seed`, { method: "POST" });
+  await loadData();
+  btn.disabled = false;
+  btn.textContent = "Generate new batch";
+});
+document.getElementById("overlay").addEventListener("click", (e) => {
+  if (e.target.id === "overlay") closePanel();
+});
+
+loadData();
+setInterval(loadData, 15000); // keep the board fresh as new form submissions come in
+</script>
+</body>
+</html>

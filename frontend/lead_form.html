@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Get a quote — Honda</title>
+<style>
+  :root {
+    --ink: #1b1b1f;
+    --ink-soft: #6b6a66;
+    --line: #dedcd6;
+    --paper: #f6f5f2;
+    --card: #ffffff;
+    --red: #c8102e;
+    --red-dark: #9c0c23;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.5;
+  }
+  .wrap { max-width: 560px; margin: 0 auto; padding: 48px 20px 80px; }
+  .mark {
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--red);
+    border: 1px solid var(--red);
+    border-radius: 3px;
+    padding: 3px 8px;
+    margin-bottom: 20px;
+  }
+  h1 { font-size: 28px; font-weight: 600; margin: 0 0 8px; letter-spacing: -0.01em; }
+  .sub { color: var(--ink-soft); font-size: 15px; margin: 0 0 36px; max-width: 42ch; }
+  form { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 28px; }
+  .field { margin-bottom: 20px; }
+  .field:last-of-type { margin-bottom: 0; }
+  label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+  .hint { font-weight: 400; color: var(--ink-soft); }
+  input[type="text"], input[type="tel"], select, textarea {
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 11px 12px;
+    font-size: 15px;
+    font-family: inherit;
+    color: var(--ink);
+    background: var(--card);
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--red);
+    box-shadow: 0 0 0 3px rgba(200,16,46,0.12);
+  }
+  textarea { resize: vertical; min-height: 72px; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 480px) { .row2 { grid-template-columns: 1fr; } }
+  .other-input { margin-top: 8px; display: none; }
+  .checks { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px; }
+  .check-item { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 400; }
+  .check-item input { width: auto; }
+  button {
+    width: 100%;
+    margin-top: 28px;
+    background: var(--red);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 14px;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+  }
+  button:hover { background: var(--red-dark); }
+  button:disabled { background: var(--ink-soft); cursor: not-allowed; }
+  .error { color: var(--red); font-size: 13px; margin-top: 6px; display: none; }
+  .success { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 40px 28px; text-align: center; display: none; }
+  .success h2 { font-size: 20px; margin: 0 0 8px; }
+  .success p { color: var(--ink-soft); margin: 0; font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="mark">HONDA</div>
+  <h1>Tell us what you're looking for</h1>
+  <p class="sub">Fill this in and a sales rep will follow up with pricing, availability, and a time to see it in person.</p>
+
+  <form id="leadForm">
+    <div class="field">
+      <label for="name">Full name</label>
+      <input type="text" id="name" required>
+    </div>
+
+    <div class="field">
+      <label for="contact">Phone or email</label>
+      <input type="text" id="contact" placeholder="03xx-xxxxxxx" required>
+    </div>
+
+    <div class="field">
+      <label for="vehicle">Which car are you interested in?</label>
+      <select id="vehicle" required>
+        <option value="" disabled selected>Select a model</option>
+        <option>Honda Civic RS</option>
+        <option>Honda Civic</option>
+        <option>Honda City Aspire</option>
+        <option>Honda City</option>
+        <option>Honda BR-V</option>
+        <option value="Other">Not sure / other</option>
+      </select>
+      <input type="text" id="vehicleOther" class="other-input" placeholder="Tell us which model">
+    </div>
+
+    <div class="field">
+      <label for="color">Preferred colour <span class="hint">(optional)</span></label>
+      <select id="color">
+        <option value="" selected>No preference</option>
+        <option>Meteor Grey</option>
+        <option>Platinum White</option>
+        <option>Lunar Silver</option>
+        <option>Crystal Black</option>
+        <option>Ignite Red</option>
+        <option value="Other">Other</option>
+      </select>
+      <input type="text" id="colorOther" class="other-input" placeholder="What colour?">
+    </div>
+
+    <div class="field">
+      <label>Special features <span class="hint">(optional)</span></label>
+      <div class="checks">
+        <label class="check-item"><input type="checkbox" value="Sunroof"> Sunroof</label>
+        <label class="check-item"><input type="checkbox" value="Leather seats"> Leather seats</label>
+        <label class="check-item"><input type="checkbox" value="Alloy wheels"> Alloy wheels</label>
+        <label class="check-item"><input type="checkbox" value="Rear camera"> Rear camera</label>
+      </div>
+    </div>
+
+    <div class="row2">
+      <div class="field">
+        <label for="budget">Budget <span class="hint">(optional)</span></label>
+        <input type="text" id="budget" placeholder="e.g. around 45,00,000">
+      </div>
+      <div class="field">
+        <label for="timeline">When are you looking to buy?</label>
+        <select id="timeline">
+          <option value="" selected>Not sure</option>
+          <option>This week</option>
+          <option>This month</option>
+          <option>Just browsing</option>
+          <option>No rush</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="message">Anything else we should know? <span class="hint">(optional)</span></label>
+      <textarea id="message" placeholder="e.g. want to book a test drive this weekend"></textarea>
+    </div>
+
+    <button type="submit" id="submitBtn">Request a callback</button>
+    <div class="error" id="formError"></div>
+  </form>
+
+  <div class="success" id="successBox">
+    <h2>Thanks, that's in with our team</h2>
+    <p>Someone will reach out shortly on the contact info you gave us.</p>
+  </div>
+</div>
+
+<script>
+  // Change this if your backend isn't running on localhost:8000
+  const API_BASE = "http://localhost:8000";
+
+  function toggleOther(selectId, otherId) {
+    const sel = document.getElementById(selectId);
+    const other = document.getElementById(otherId);
+    sel.addEventListener("change", () => {
+      other.style.display = sel.value === "Other" ? "block" : "none";
+    });
+  }
+  toggleOther("vehicle", "vehicleOther");
+  toggleOther("color", "colorOther");
+
+  document.getElementById("leadForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const errorEl = document.getElementById("formError");
+    const btn = document.getElementById("submitBtn");
+    errorEl.style.display = "none";
+
+    const name = document.getElementById("name").value.trim();
+    const contact = document.getElementById("contact").value.trim();
+    let vehicle = document.getElementById("vehicle").value;
+    if (vehicle === "Other") vehicle = document.getElementById("vehicleOther").value.trim();
+    let color = document.getElementById("color").value;
+    if (color === "Other") color = document.getElementById("colorOther").value.trim();
+
+    if (!name || !contact || !vehicle) {
+      errorEl.textContent = "Please fill in your name, contact info, and which car you're interested in.";
+      errorEl.style.display = "block";
+      return;
+    }
+
+    const features = Array.from(document.querySelectorAll(".check-item input:checked"))
+      .map(cb => cb.value)
+      .join(", ");
+
+    const payload = {
+      name,
+      contact,
+      source: "Website Form",
+      vehicle_interest: vehicle,
+      color: color || null,
+      special_features: features || null,
+      budget_hint: document.getElementById("budget").value.trim() || null,
+      timeline: document.getElementById("timeline").value || null,
+      message: document.getElementById("message").value.trim() || null
+    };
+
+    btn.disabled = true;
+    btn.textContent = "Sending...";
+
+    try {
+      const res = await fetch(`${API_BASE}/api/leads/submit`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error("Server error");
+      document.getElementById("leadForm").style.display = "none";
+      document.getElementById("successBox").style.display = "block";
+    } catch (err) {
+      errorEl.textContent = "Something went wrong sending this — please try again in a moment.";
+      errorEl.style.display = "block";
+      btn.disabled = false;
+      btn.textContent = "Request a callback";
+    }
+  });
+</script>
+</body>
+</html>
